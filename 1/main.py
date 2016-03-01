@@ -9,7 +9,7 @@ from decimal import Decimal  # для точных расчётов
 sumOfSeries = 1  # сумма ряда, включая первый его член равный 1
 
 
-def n_term(n, x):
+def _val_of_term(n, x):
     """
     Вычисление n-го члена ряда
         n - номер члена ряда
@@ -29,7 +29,7 @@ def sum_by_accuracy(x):
     i = 0
     while True:
         i += 1
-        valueOfTerm = n_term(i, x)  # значение n-го члена ряда
+        valueOfTerm = _val_of_term(i, x)  # значение n-го члена ряда
         if fabs(valueOfTerm) < 10 ** (-precision):  # е. значение n-го члена ряда меньше требуемой точности
             break
         sumOfSeries = Decimal(sumOfSeries + valueOfTerm)
@@ -44,18 +44,18 @@ def sum_by_amount_of_terms(x):
     global sumOfSeries
     amountOfTerms = int(input('Введите количество членов ряда для вычисления его суммы (>=1)\n'))  # количество членов ряда
     for i in range(amountOfTerms - 1):  # вычитание - для первого члена ряда
-        sumOfSeries = Decimal(sumOfSeries + n_term(i, x))
+        sumOfSeries = Decimal(sumOfSeries + _val_of_term(i, x))
     return sumOfSeries
 
 
 if __name__ == '__main__':
-    valueOfX = int(input('Задайте величину x\n'))
+    x = int(input('Задайте величину x\n'))
     while True:
-        _ = input('''Выберите метод подсчёта суммы ряда, введя соответствующую команду:\n[0] - по заданной точности\n[1] - с заданным количеством членов ряда\n''')
-        if _ == '0':
-            sumOfSeries = sum_by_accuracy(valueOfX)
+        command = input('''Выберите метод подсчёта суммы ряда, введя соответствующую команду:\n[0] - по заданной точности\n[1] - с заданным количеством членов ряда\n''')
+        if command == '0':
+            sumOfSeries = sum_by_accuracy(x)
             break
-        elif _ == '1':
-            sumOfSeries = sum_by_amount_of_terms(valueOfX)
+        elif command == '1':
+            sumOfSeries = sum_by_amount_of_terms(x)
             break
     print('Сумма ряда равна:\n', sumOfSeries)
