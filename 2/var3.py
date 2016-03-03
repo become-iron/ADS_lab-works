@@ -6,7 +6,7 @@
 
 
 def convert_matrix(matrix):
-    return [(sorted(matrix[i]) if i % 2 == 0 else sorted(matrix[i], reverse=True)) for i in range(len(matrix))]
+    return [sorted(matrix[i]) if i % 2 == 0 else sorted(matrix[i], reverse=True) for i in range(len(matrix))]
 
 
 if __name__ == '__main__':
