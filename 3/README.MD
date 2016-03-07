@@ -8,8 +8,6 @@
 * Python 3.4
 * Matplotlib
 
-Описание изображения | Изображение
----|:---:
-Пример работы | ![](img/figure 1.png)
-5000 точек | ![](img/figure 2.png)
-Процесс "прокладывания" пути | ![](img/animation.png)
+![](img/figure 1.png)
+![](img/figure 2.png)
+![](img/animation.png)
