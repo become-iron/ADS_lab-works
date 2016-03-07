@@ -10,4 +10,4 @@
 
 ![](img/figure 1.png)
 ![](img/figure 2.png)
-![](img/animation.png)
+![](img/animation.gif)
