@@ -8,6 +8,7 @@ def is_identity_matrix(matrix):
             if (matrix[i][j] != 0 and i != j) or (matrix[i][i] != 1 and i == j):
                 is_identity = False
                 break
+        if is_identity == False: break
     return is_identity
 
 if __name__ == '__main__':
