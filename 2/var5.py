@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # генерация рандомной неединичной матрицы
     from random import randrange
     from pprint import pprint
-    m = randrange(4, 10)  # размер матрицы
+    n = randrange(4, 10)  # размер матрицы
     exampleMatrix = [[randrange(10, 99) for cell in range(n)] for line in range(n)]  # генерация матрицы
     print('Неединичная матрица:')
     pprint(exampleMatrix)
