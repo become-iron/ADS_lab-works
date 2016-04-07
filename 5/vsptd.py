@@ -183,6 +183,10 @@ class TripletString:
             # WARN TODO возникает ошибка с булевыми типами
             if isinstance(val, str):  # е. значение триплета - строка, оборачиваем его в кавычки
                 val = '"' + str(val) + '"'
+            elif val is True:
+                val = 'True'
+            elif val is False:
+                val = 'False'
             condition = condition.replace(_, val)
-        # print(condition)
+        print(condition)
         return eval(condition)
