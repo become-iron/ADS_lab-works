@@ -53,8 +53,8 @@ class Triplet:
             raise ValueError('Неверный вид префикса триплета')
         if re.match(_RE_NAME, name) is None:
             raise ValueError('Неверный вид имени триплета')
-        if re.match(_RE_VALUE, value) is None:  # TODO может быть и не строка
-            raise ValueError
+        # if re.match(_RE_VALUE, value) is None:  # TODO может быть и не строка
+        #     raise ValueError
         # префикс и имя приводятся к верхнему регистру
         self.prefix = prefix.upper()
         self.name = name.upper()
@@ -180,8 +180,9 @@ class TripletString:
             condition = condition.replace(_[0], _[1])
         for _ in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов
             val = self.__getitem__(_[1:])
+            # WARN TODO возникает ошибка с булевыми типами
             if isinstance(val, str):  # е. значение триплета - строка, оборачиваем его в кавычки
                 val = '"' + str(val) + '"'
             condition = condition.replace(_, val)
-        print(condition)
+        # print(condition)
         return eval(condition)
