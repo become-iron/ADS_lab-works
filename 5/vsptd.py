@@ -12,15 +12,15 @@ _RE_PREFIX_NAME = re.compile('^[A-Za-z]\.[A-Za-z]+$')  # префикс.имя
 _RE_PREFIX_NAME2 = re.compile('\$[A-Za-z]\.[A-Za-z]+')  # $префикс.имя
 
 
-def parse_to_triplets(string='', file=None, count=-1):
-    """Парсинг строки/файла в триплеты
-    """
-    if file is not None:
-        pass
-    elif isinstance(string, str):
-        pass
-    else:
-        raise ValueError
+# def parse_to_triplets(string='', file=None, count=-1):
+#     """Парсинг строки/файла в триплеты
+#     """
+#     if file is not None:
+#         pass
+#     elif isinstance(string, str):
+#         pass
+#     else:
+#         raise ValueError
 
 
 def strcat(a, b):
@@ -169,18 +169,35 @@ class TripletString:
         if not isinstance(condition, str):
             raise ValueError('Должна быть строка')
 
-        # WARN TODO в запросе ключевые слова на настоящий момент должны быть в нижнем регистре
-        replacements = [['или', 'or'],
-                        ['и', 'and'],
-                        ['=', '=='],
-                        ['<>', '!='],
-                        ['есть', 'is_in'],
-                        ['не', 'is_not_in']]
+        # WARN возможна неверная замена
+        # например, замена слов произойдёт, даже если в условии происходит
+        # сравнение со строкой, содержащей слово на замену
+        # $W.B = " или "
+        replacements = [[' или ', ' or '],
+                        [' и ', ' and '],
+                        [' = ', ' == '],
+                        [' <> ', ' != ']]
         for _ in replacements:
             condition = condition.replace(_[0], _[1])
-        for _ in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов
+            condition = condition.replace(_[0].upper(), _[1])  # для верхнего регистра
+
+        # замены для ЕСТЬ и НЕТ
+        # не работает регулярка
+        # for _ in re.findall(r'(ЕСТЬ|есть)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+        #     item = _[6:-1].split('.')
+        #     val = False
+        #     for triplet in self.trpString:
+        #         if triplet.prefix == item[0] and triplet.name == item[1]:
+        #             val = True
+        #             break
+        #     if val is True:
+        #         condition = condition.replace(_, 'True')
+        #     else:
+        #         condition = condition.replace(_, 'False')
+
+        print(re.findall(_RE_PREFIX_NAME2, condition))
+        for _ in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов на их значения
             val = self.__getitem__(_[1:])
-            # WARN TODO возникает ошибка с булевыми типами
             if isinstance(val, str):  # е. значение триплета - строка, оборачиваем его в кавычки
                 val = '"' + str(val) + '"'
             elif val is True:
