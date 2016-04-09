@@ -182,20 +182,32 @@ class TripletString:
             condition = condition.replace(_[0].upper(), _[1])  # для верхнего регистра
 
         # замены для ЕСТЬ и НЕТ
-        # не работает регулярка
-        # for _ in re.findall(r'(ЕСТЬ|есть)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
-        #     item = _[6:-1].split('.')
-        #     val = False
-        #     for triplet in self.trpString:
-        #         if triplet.prefix == item[0] and triplet.name == item[1]:
-        #             val = True
-        #             break
-        #     if val is True:
-        #         condition = condition.replace(_, 'True')
-        #     else:
-        #         condition = condition.replace(_, 'False')
+        # TODO
+        # 1. оптимизировать
+        # 2. заменить регулярки на вменяемые
+        for _ in re.findall(r'есть\(\$[A-Za-z]\.[A-Za-z]+\)', condition) + re.findall(r'ЕСТЬ\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+            item = _[6:-1].upper().split('.')
+            val = False
+            for triplet in self.trpString:
+                if triplet.prefix == item[0] and triplet.name == item[1]:
+                    val = True
+                    break
+            if val is True:
+                condition = condition.replace(_, 'True')
+            else:
+                condition = condition.replace(_, 'False')
+        for _ in re.findall(r'нет\(\$[A-Za-z]\.[A-Za-z]+\)', condition) + re.findall(r'НЕТ\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+            item = _[5:-1].upper().split('.')
+            val = False
+            for triplet in self.trpString:
+                if triplet.prefix == item[0] and triplet.name == item[1]:
+                    val = True
+                    break
+            if val is True:
+                condition = condition.replace(_, 'False')
+            else:
+                condition = condition.replace(_, 'True')
 
-        print(re.findall(_RE_PREFIX_NAME2, condition))
         for _ in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов на их значения
             val = self.__getitem__(_[1:])
             if isinstance(val, str):  # е. значение триплета - строка, оборачиваем его в кавычки
@@ -205,5 +217,5 @@ class TripletString:
             elif val is False:
                 val = 'False'
             condition = condition.replace(_, val)
-        print(condition)
+        print('Конечное выражение:\n', condition, '\n', sep='')
         return eval(condition)
