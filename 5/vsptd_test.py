@@ -14,4 +14,4 @@ from vsptd import Triplet, TripletString
 # b=TripletString()
 
 _ = TripletString(Triplet('G', 'V', True), Triplet('W', 'R', 'fdd'), Triplet('T', 'V', 'dsad'), Triplet('J', 'R', 'dsad'))
-print(_.check_condition('нет($g.v) = есть($w.r)'))
+print(_.check_condition('нет($i.trv) = есть($w.r) и ($t.v != $g.v)'))

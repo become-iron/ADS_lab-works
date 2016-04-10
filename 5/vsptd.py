@@ -182,10 +182,8 @@ class TripletString:
             condition = condition.replace(_[0].upper(), _[1])  # для верхнего регистра
 
         # замены для ЕСТЬ и НЕТ
-        # TODO
-        # 1. оптимизировать
-        # 2. заменить регулярки на вменяемые
-        for _ in re.findall(r'есть\(\$[A-Za-z]\.[A-Za-z]+\)', condition) + re.findall(r'ЕСТЬ\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+        # TODO оптимизировать
+        for _ in re.findall(r'(?:есть|ЕСТЬ)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
             item = _[6:-1].upper().split('.')
             val = False
             for triplet in self.trpString:
@@ -196,7 +194,7 @@ class TripletString:
                 condition = condition.replace(_, 'True')
             else:
                 condition = condition.replace(_, 'False')
-        for _ in re.findall(r'нет\(\$[A-Za-z]\.[A-Za-z]+\)', condition) + re.findall(r'НЕТ\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+        for _ in re.findall(r'(?:нет|НЕТ)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
             item = _[5:-1].upper().split('.')
             val = False
             for triplet in self.trpString:
@@ -217,5 +215,6 @@ class TripletString:
             elif val is False:
                 val = 'False'
             condition = condition.replace(_, val)
+
         print('Конечное выражение:\n', condition, '\n', sep='')
         return eval(condition)
