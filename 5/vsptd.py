@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import re
 from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt
 from math import log as ln
@@ -27,19 +28,12 @@ def strcat(a, b):
     return a + b
 
 
-def is_in(a, b):
-    return b in a
-
-
-def is_not_in(a, b):
-    return not (b in a)
-
-
 class Triplet:
     """
     ТРИПЛЕТ
-        Prefix - префикс
-        Name - имя параметра
+    Принимает:
+        Prefix (str) - префикс (1 латинский символ)
+        Name (str) - имя параметра (латинские символы)
         Value - значение параметра
     """
     def __init__(self, prefix, name, value=''):
@@ -71,9 +65,9 @@ class Triplet:
 
     def __add__(self, other):
         if isinstance(other, Triplet):
-            return TripletString(self, other)
-        if isinstance(other, TripletString):
-            return TripletString(self, *other)
+            return TriplexString(self, other)
+        if isinstance(other, TriplexString):
+            return TriplexString(self, *other)
         else:
             raise ValueError
 
@@ -81,7 +75,12 @@ class Triplet:
         return self.name == other.name and self.prefix == other.prefix and self.value == other.value
 
 
-class TripletString:
+class TriplexString:
+    """
+    ТРИПЛЕКСНАЯ СТРОКА
+    Принимает:
+        *triplets (Triplet) - триплеты
+    """
     def __init__(self, *triplets):
         for _ in triplets:   # CHECK проверить скорость работы через filter
             if not isinstance(_, Triplet):
@@ -106,6 +105,7 @@ class TripletString:
         return ''.join(tuple(str(triplet) for triplet in self.trpString))
 
     def __contains__(self, item):
+        # TODO возможно, стоит включить возможность проверки включения по префиксу и имени
         if not isinstance(item, Triplet):
             raise ValueError('Должен быть триплет')
 
@@ -118,22 +118,23 @@ class TripletString:
         # TODO CHECK
         if isinstance(key, str):  # элемент по ключу
             if re.match(_RE_PREFIX, key) is not None:  # получить триплеты по префиксу в виде триплесной строки
-                return TripletString(*[self.trpString[i] for i in range(len(self.trpString)) if self.trpString[i].prefix == key])
+                return TriplexString(*[triplet for triplet in self.trpString if triplet.prefix == key])
             elif re.match(_RE_PREFIX_NAME, key) is not None:  # получить значение по префиксу и имени
                 key = key.upper().split('.')
-                for i in range(len(self.trpString)):
-                    if self.trpString[i].prefix == key[0] and self.trpString[i].name == key[1]:
-                        return self.trpString[i].value
+                for triplet in self.trpString:
+                    if triplet.prefix == key[0] and triplet.name == key[1]:
+                        return triplet.value
                 return None
             else:
-                raise ValueError
+                raise ValueError('Неверный формат данных')
         else:  # элемент по срезу
             return self.trpString[key]
 
     def __iter__(self):
         return iter(self.trpString)
 
-    def del_trp(self, item):  # CHECK
+    def del_trp(self, item):
+        # TODO CHECK
         """Удалить триплет из триплексной строки
         """
         if not isinstance(item, Triplet):
@@ -190,10 +191,8 @@ class TripletString:
                 if triplet.prefix == item[0] and triplet.name == item[1]:
                     val = True
                     break
-            if val is True:
-                condition = condition.replace(_, 'True')
-            else:
-                condition = condition.replace(_, 'False')
+            condition = condition.replace(_,
+                                          'True' if val is True else 'False')
         for _ in re.findall(r'(?:нет|НЕТ)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
             item = _[5:-1].upper().split('.')
             val = False
@@ -201,10 +200,8 @@ class TripletString:
                 if triplet.prefix == item[0] and triplet.name == item[1]:
                     val = True
                     break
-            if val is True:
-                condition = condition.replace(_, 'False')
-            else:
-                condition = condition.replace(_, 'True')
+            condition = condition.replace(_,
+                                          'False' if val is True else 'True')
 
         for _ in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов на их значения
             val = self.__getitem__(_[1:])
