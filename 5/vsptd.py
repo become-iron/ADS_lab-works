@@ -86,7 +86,7 @@ class TriplexString:
             if not isinstance(_, Triplet):
                 raise ValueError('Аргументы должны быть триплетами')
         if len(triplets) > 0:
-            self.trpString = triplets
+            self.trpString = list(triplets)
         else:
             self.trpString = []
 
