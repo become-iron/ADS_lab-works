@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from copy import deepcopy
 from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt
 from math import log as ln
 from math import log10 as log
@@ -89,6 +90,16 @@ class TriplexString:
             self.trpString = list(triplets)
         else:
             self.trpString = []
+        
+        tripletsCopy = deepcopy(self.trpString) 
+        for triplet in tripletsCopy: 
+            for secTriplet in self.trpString: 
+                if secTriplet.prefix == triplet.prefix and secTriplet.name == triplet.name and secTriplet.value != triplet.value: 
+                    print(triplet, secTriplet) 
+                    try: 
+                        self.trpString.remove(triplet) 
+                    except ValueError: 
+                        pass
 
     def __len__(self):
         return len(self.trpString)
