@@ -211,6 +211,8 @@ class TriplexString:
                 val = 'True'
             elif val is False:
                 val = 'False'
+            else:
+                val = str(val)
             condition = condition.replace(_, val)
 
         print('Конечное выражение:\n', condition, '\n', sep='')

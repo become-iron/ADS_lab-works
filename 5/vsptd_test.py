@@ -14,5 +14,8 @@ from vsptd import Triplet, TriplexString
 # b=TripletString()
 
 _ = TriplexString(Triplet('G', 'V', True), Triplet('W', 'R', 'fdd'), Triplet('T', 'V', 'dsad'), Triplet('J', 'R', 'dsad'))
+print(_)
+_ = _.del_trp(Triplet('G', 'V', True))
+print(_)
 # print(_.check_condition('нет($i.trv) = есть($w.r) и ($t.v != $g.v)'))
-print(_['g.v'])
+# print(_['g.v'])
