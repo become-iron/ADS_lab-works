@@ -10,6 +10,8 @@ _RE_NAME = re.compile('^[A-Za-z]+$')  # имя: латинские символ�
 _RE_VALUE = re.compile('^[A-Za-zА-Яа-я0-9]*$')  # значение
 _RE_PREFIX_NAME = re.compile('^[A-Za-z]\.[A-Za-z]+$')  # префикс.имя
 _RE_PREFIX_NAME2 = re.compile('\$[A-Za-z]\.[A-Za-z]+')  # $префикс.имя
+_RE_FUNC_ENTRY = re.compile('(?:есть|ЕСТЬ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция ЕСТЬ
+_RE_FUNC_ABSENCE = re.compile('(?:нет|НЕТ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция НЕТ
 
 
 # def parse_to_triplets(string='', file=None, count=-1):
@@ -38,17 +40,19 @@ class Triplet:
 
     def __init__(self, prefix, name, value=''):
         if not isinstance(prefix, str):
-            raise ValueError('Неверный формат данных. Должна быть строка')
+            raise ValueError('Префикс должен быть строкой')
         if not isinstance(name, str):
-            raise ValueError('Неверный формат данных. Должна быть строка')
-        if not isinstance(value, (str, int, float, Triplet)):
-            raise ValueError('Неверный формат данных. Должна быть строка, число или триплексная строка')
+            raise ValueError('Имя должно быть строкой')
+        if not isinstance(value, (str, int, float, Triplet, TriplexString)):
+            raise ValueError('Значение должно быть строкой, числом, триплетом или триплексной строкой')
         if re.match(_RE_PREFIX, prefix) is None:
-            raise ValueError('Неверный вид префикса триплета')
+            raise ValueError('Неверный формат префикса')
         if re.match(_RE_NAME, name) is None:
-            raise ValueError('Неверный вид имени триплета')
-        # if re.match(_RE_VALUE, value) is None:  # TODO может быть и не строка (следует уточнить)
+            raise ValueError('Неверный формат имени')
+        # TODO может быть и не строка (следует уточнить)
+        # if re.match(_RE_VALUE, value) is None and isinstance(value, str):
         #     raise ValueError
+
         # префикс и имя приводятся к верхнему регистру
         self.prefix = prefix.upper()
         self.name = name.upper()
@@ -89,7 +93,6 @@ class TriplexString:
             if not isinstance(_, Triplet):
                 raise ValueError('Аргументы должны быть триплетами')
         self.trpString = list(triplets)
-
         self.__del_repeats()
 
     def __del_repeats(self):
@@ -218,7 +221,7 @@ class TriplexString:
 
         # замены для ЕСТЬ и НЕТ
         # TODO оптимизировать
-        for _ in re.findall(r'(?:есть|ЕСТЬ)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+        for _ in re.findall(_RE_FUNC_ENTRY, condition):  # функция ЕСТЬ
             item = _[6:-1].upper().split('.')
             val = False
             for triplet in self.trpString:
@@ -227,7 +230,7 @@ class TriplexString:
                     break
             condition = condition.replace(_,
                                           'True' if val is True else 'False')
-        for _ in re.findall(r'(?:нет|НЕТ)\(\$[A-Za-z]\.[A-Za-z]+\)', condition):
+        for _ in re.findall(_RE_FUNC_ABSENCE, condition):  # функция НЕТ
             item = _[5:-1].upper().split('.')
             val = False
             for triplet in self.trpString:
@@ -249,5 +252,5 @@ class TriplexString:
                 val = str(val)
             condition = condition.replace(_, val)
 
-        print('Конечное выражение:\n', condition, '\n', sep='')
+        # print('Конечное выражение:\n', condition, '\n', sep='')
         return eval(condition)
