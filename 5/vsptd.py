@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-from copy import deepcopy
 from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt
 from math import log as ln
 from math import log10 as log
@@ -48,7 +47,7 @@ class Triplet:
             raise ValueError('Неверный вид префикса триплета')
         if re.match(_RE_NAME, name) is None:
             raise ValueError('Неверный вид имени триплета')
-        # if re.match(_RE_VALUE, value) is None:  # TODO может быть и не строка
+        # if re.match(_RE_VALUE, value) is None:  # TODO может быть и не строка (следует уточнить)
         #     raise ValueError
         # префикс и имя приводятся к верхнему регистру
         self.prefix = prefix.upper()
@@ -73,7 +72,10 @@ class Triplet:
             raise ValueError
 
     def __eq__(self, other):
-        return self.name == other.name and self.prefix == other.prefix and self.value == other.value
+        return isinstance(other, Triplet) and \
+               self.name == other.name and \
+               self.prefix == other.prefix and \
+               self.value == other.value
 
 
 class TriplexString:
@@ -86,31 +88,35 @@ class TriplexString:
         for _ in triplets:   # CHECK проверить скорость работы через filter
             if not isinstance(_, Triplet):
                 raise ValueError('Аргументы должны быть триплетами')
-        if len(triplets) > 0:
-            self.trpString = list(triplets)
-        else:
-            self.trpString = []
-        
-        tripletsCopy = deepcopy(self.trpString) 
-        for triplet in tripletsCopy: 
-            for secTriplet in self.trpString: 
-                if secTriplet.prefix == triplet.prefix and secTriplet.name == triplet.name and secTriplet.value != triplet.value: 
-                    print(triplet, secTriplet) 
-                    try: 
-                        self.trpString.remove(triplet) 
-                    except ValueError: 
+        self.trpString = list(triplets)
+
+        self.__del_repeats()
+
+    def __del_repeats(self):
+        # TODO
+        """УДАЛИТЬ ПОВТОРЫ ТРИПЛЕТОВ (ПО ПРЕФИКСАМ И ИМЕНАМ) В ТРИПЛЕКСНОЙ СТРОКЕ"""
+        trpString_copy = self.trpString.copy()
+        for triplet in trpString_copy:
+            for secTriplet in self.trpString:
+                if secTriplet.prefix == triplet.prefix and secTriplet.name == triplet.name and secTriplet.value != triplet.value:
+                    # print(triplet, secTriplet)
+                    try:
+                        print(1)
+                        self.trpString.remove(triplet)
+                    except ValueError:
                         pass
 
     def __len__(self):
         return len(self.trpString)
 
-    # def __add__(self, other):
-    #     if isinstance(other, Triplet):
-    #         return TripletString(*([_ for _ in self.trpString] + [other]))  # TODO новый элемент вставляется в начало трипл. строки
-    #     elif isinstance(other, TripletString):
-    #         return TripletString(*([_ for _ in self.trpString] + [_ for _ in other]))  # WARN CHECK TODO новый элемент вставляется в начало трипл. строки, не совсем понятна работа
-    #     else:
-    #         raise ValueError
+    def __add__(self, other):
+        # CHECK
+        if isinstance(other, Triplet):
+            return TriplexString(*self.trpString.copy().append(other))
+        elif isinstance(other, TriplexString):
+            return TriplexString(*self.trpString.copy().extend(other))
+        else:
+            raise ValueError
 
     def __str__(self):
         return ''.join(tuple(str(triplet) for triplet in self.trpString))
@@ -141,38 +147,58 @@ class TriplexString:
         else:  # элемент по срезу
             return self.trpString[key]
 
+    def __eq__(self, other):
+        # CHECK возможно, стоит замерить скорость работы
+        if not isinstance(other, TriplexString):
+            raise ValueError
+
+        if len(self.trpString) != len(other):
+            return False
+        for triplet in other:
+            if triplet not in self.trpString:
+                return False
+        return True
+
     def __iter__(self):
         return iter(self.trpString)
 
     def del_trp(self, item):
-        # TODO CHECK
-        """Удалить триплет из триплексной строки
+        # CHECK
+        """
+        УДАЛИТЬ ТРИПЛЕТ ИЗ ТРИПЛЕКСНОЙ СТРОКИ
+        Принимает:
+            item (Triplet) - триплет на удаление
+        Вызывает исключение ValueError, если триплет не найден
         """
         if not isinstance(item, Triplet):
             raise ValueError('Должен быть триплет')
 
-        for i in range(len(self.trpString)):
-            if self.trpString[i].prefix == item.prefix and \
-               self.trpString[i].name == item.name and \
-               self.trpString[i].value == item.value:
-                del(self.trpString[i])
-                return self
-        return self
+        for triplet in self.trpString:
+            if triplet.prefix == item.prefix and \
+               triplet.name == item.name and \
+               triplet.value == item.value:
+                self.trpString.remove(triplet)
+                return
+        raise ValueError('Триплет не найден')
 
     def del_trp_pref(self, prefix):
-        """Удалить все триплеты с заданным префиксом из триплексной строки
+        # CHECK
+        """
+        УДАЛИТЬ ВСЕ ТРИПЛЕТЫ С ЗАДАННЫМ ПРЕФИКСОМ ИЗ ТРИПЛЕКСНОЙ СТРОКИ
+        Принимает:
+            prefix (str) - префикс
         """
         if not isinstance(prefix, str):
             raise ValueError('Должен быть триплет')
 
-        for i in range(len(self.trpString)):
-            if self.trpString[i].prefix == prefix:
-                del(self.trpString[i])
-        return self
+        for triplet in self.trpString:
+            if triplet.prefix == prefix:
+                self.trpString.remove(triplet)
 
     def check_condition(self, condition):
+        # WARN используется опасный алгоритм, который также может не всегда верно работать
         """
-        ПРОВЕРКА ТРИПЛ. СТРОКИ НА УСЛОВИЕ
+        ПРОВЕРКА ТРИПЛЕКСНОЙ СТРОКИ НА УСЛОВИЕ
         Принимает:
             condition (str) - условие
         Возвращает:
