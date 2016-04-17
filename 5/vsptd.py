@@ -5,7 +5,6 @@ from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt
 from math import log as ln
 from math import log10 as log
 
-
 _RE_PREFIX = re.compile('^[A-Za-z]$')  # префикс: 1 латинский символ
 _RE_NAME = re.compile('^[A-Za-z]+$')  # имя: латинские символы
 _RE_VALUE = re.compile('^[A-Za-zА-Яа-я0-9]*$')  # значение
@@ -36,6 +35,7 @@ class Triplet:
         Name (str) - имя параметра (латинские символы)
         Value - значение параметра
     """
+
     def __init__(self, prefix, name, value=''):
         if not isinstance(prefix, str):
             raise ValueError('Неверный формат данных. Должна быть строка')
@@ -85,7 +85,7 @@ class TriplexString:
         *triplets (Triplet) - триплеты
     """
     def __init__(self, *triplets):
-        for _ in triplets:   # CHECK проверить скорость работы через filter
+        for _ in triplets:  # CHECK проверить скорость работы через filter
             if not isinstance(_, Triplet):
                 raise ValueError('Аргументы должны быть триплетами')
         self.trpString = list(triplets)
@@ -93,18 +93,15 @@ class TriplexString:
         self.__del_repeats()
 
     def __del_repeats(self):
-        # TODO
+        # TODO CHECK
         """УДАЛИТЬ ПОВТОРЫ ТРИПЛЕТОВ (ПО ПРЕФИКСАМ И ИМЕНАМ) В ТРИПЛЕКСНОЙ СТРОКЕ"""
         trpString_copy = self.trpString.copy()
         for triplet in trpString_copy:
-            for secTriplet in self.trpString:
-                if secTriplet.prefix == triplet.prefix and secTriplet.name == triplet.name and secTriplet.value != triplet.value:
-                    # print(triplet, secTriplet)
-                    try:
-                        print(1)
-                        self.trpString.remove(triplet)
-                    except ValueError:
-                        pass
+            # триплеты с данными префиксами и именами
+            triplets_to_remove = [_ for _ in self.trpString if _.prefix == triplet.prefix and _.name == triplet.name]
+            triplets_to_remove = triplets_to_remove[:-1]  # исключение последнего найденного триплета
+            for secTriplet in triplets_to_remove:
+                self.trpString.remove(secTriplet)
 
     def __len__(self):
         return len(self.trpString)
@@ -112,9 +109,9 @@ class TriplexString:
     def __add__(self, other):
         # CHECK
         if isinstance(other, Triplet):
-            return TriplexString(*self.trpString.copy().append(other))
+            return TriplexString(*(self.trpString + [other]))
         elif isinstance(other, TriplexString):
-            return TriplexString(*self.trpString.copy().extend(other))
+            return TriplexString(*(self.trpString + other.trpString))
         else:
             raise ValueError
 
@@ -175,8 +172,8 @@ class TriplexString:
 
         for triplet in self.trpString:
             if triplet.prefix == item.prefix and \
-               triplet.name == item.name and \
-               triplet.value == item.value:
+                            triplet.name == item.name and \
+                            triplet.value == item.value:
                 self.trpString.remove(triplet)
                 return
         raise ValueError('Триплет не найден')
