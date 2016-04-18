@@ -61,10 +61,10 @@ class Triplet:
 
     def __str__(self):
         _ = '${}.{}='.format(self.prefix, self.name)
-        if isinstance(self.value, str):
-            _ += '\'{}\''.format(self.value)
-        elif self.value == _BID:
+        if self.value == _BID:
             _ += _BID
+        elif isinstance(self.value, str):
+            _ += '\'{}\''.format(self.value)
         else:
             _ += str(self.value)
         _ += ';'
