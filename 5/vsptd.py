@@ -96,11 +96,8 @@ class TriplexString:
             if not isinstance(_, Triplet):
                 raise ValueError('Аргументы должны быть триплетами')
         self.trpString = list(triplets)
-        self.__del_repeats()
 
-    def __del_repeats(self):
-        # TODO CHECK
-        """УДАЛИТЬ ПОВТОРЫ ТРИПЛЕТОВ (ПО ПРЕФИКСАМ И ИМЕНАМ) В ТРИПЛЕКСНОЙ СТРОКЕ"""
+        # удаление повторов триплетов (по префиксам и именам)
         trpString_copy = self.trpString.copy()
         for triplet in trpString_copy:
             # триплеты с данными префиксами и именами
@@ -176,7 +173,7 @@ class TriplexString:
         """
         return self.__add__(other)
 
-    def del_trp(self, item):
+    def del_trp(self, prefix, name):
         # CHECK
         """
         УДАЛИТЬ ТРИПЛЕТ ИЗ ТРИПЛЕКСНОЙ СТРОКИ
@@ -184,11 +181,17 @@ class TriplexString:
             item (Triplet) - триплет на удаление
         Вызывает исключение ValueError, если триплет не найден
         """
-        if not isinstance(item, Triplet):
-            raise ValueError('Должен быть триплет')
+        if not isinstance(prefix, str):
+            raise ValueError('Префикс должен быть строкой')
+        if not isinstance(name, str):
+            raise ValueError('Имя должно быть строкой')
+        if re.match(_RE_PREFIX, prefix) is None:
+            raise ValueError('Неверный формат префикса')
+        if re.match(_RE_NAME, name) is None:
+            raise ValueError('Неверный формат имени')
 
         for triplet in self.trpString:
-            if triplet.prefix == item.prefix and triplet.name == item.name and triplet.value == item.value:
+            if triplet.prefix == prefix and triplet.name == name:
                 self.trpString.remove(triplet)
                 return
         raise ValueError('Триплет не найден')
