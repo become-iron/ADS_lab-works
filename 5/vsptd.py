@@ -5,12 +5,14 @@ from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt
 from math import log as ln
 from math import log10 as log
 
+_BID = ':'  # заявка (запрос полной информации по заданному объекту, определяемому префиксом)
+
 _RE_PREFIX = re.compile('^[A-Za-z]$')  # префикс: 1 латинский символ
 _RE_NAME = re.compile('^[A-Za-z]+$')  # имя: латинские символы
 _RE_VALUE = re.compile('^[A-Za-zА-Яа-я0-9]*$')  # значение
 _RE_PREFIX_NAME = re.compile('^[A-Za-z]\.[A-Za-z]+$')  # префикс.имя
 _RE_PREFIX_NAME2 = re.compile('\$[A-Za-z]\.[A-Za-z]+')  # $префикс.имя
-_RE_FUNC_ENTRY = re.compile('(?:есть|ЕСТЬ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция ЕСТЬ
+_RE_FUNC_PRESENT = re.compile('(?:есть|ЕСТЬ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция ЕСТЬ
 _RE_FUNC_ABSENCE = re.compile('(?:нет|НЕТ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция НЕТ
 
 
@@ -37,7 +39,6 @@ class Triplet:
         Name (str) - имя параметра (латинские символы)
         Value - значение параметра
     """
-
     def __init__(self, prefix, name, value=''):
         if not isinstance(prefix, str):
             raise ValueError('Префикс должен быть строкой')
@@ -49,9 +50,9 @@ class Triplet:
             raise ValueError('Неверный формат префикса')
         if re.match(_RE_NAME, name) is None:
             raise ValueError('Неверный формат имени')
-        # TODO может быть и не строка (следует уточнить)
-        # if re.match(_RE_VALUE, value) is None and isinstance(value, str):
-        #     raise ValueError
+        # TODO может быть и не строкой (следует уточнить)
+        if isinstance(value, str) and value != _BID and re.match(_RE_VALUE, value) is None:
+            raise ValueError
 
         # префикс и имя приводятся к верхнему регистру
         self.prefix = prefix.upper()
@@ -162,6 +163,17 @@ class TriplexString:
     def __iter__(self):
         return iter(self.trpString)
 
+    def add(self, other):
+        """
+        СЛОЖЕНИЕ ТРИПЛЕКСНОЙ СТРОКИ С ТРИПЛЕКСНОЙ СТРОКОЙ ИЛИ ТРИПЛЕТОМ
+        Эквивалентно сложению через оператор "+"
+        Принимает:
+            other (TriplexString или Triplet) - триплексная строка или триплет
+        Возвращает:
+            (TriplexString)
+        """
+        return self.__add__(other)
+
     def del_trp(self, item):
         # CHECK
         """
@@ -174,9 +186,7 @@ class TriplexString:
             raise ValueError('Должен быть триплет')
 
         for triplet in self.trpString:
-            if triplet.prefix == item.prefix and \
-                            triplet.name == item.name and \
-                            triplet.value == item.value:
+            if triplet.prefix == item.prefix and triplet.name == item.name and triplet.value == item.value:
                 self.trpString.remove(triplet)
                 return
         raise ValueError('Триплет не найден')
@@ -214,14 +224,15 @@ class TriplexString:
         replacements = [[' или ', ' or '],
                         [' и ', ' and '],
                         [' = ', ' == '],
-                        [' <> ', ' != ']]
+                        [' <> ', ' != '],
+                        [' ^ ', ' ** ']]
         for _ in replacements:
             condition = condition.replace(_[0], _[1])
             condition = condition.replace(_[0].upper(), _[1])  # для верхнего регистра
 
         # замены для ЕСТЬ и НЕТ
         # TODO оптимизировать
-        for _ in re.findall(_RE_FUNC_ENTRY, condition):  # функция ЕСТЬ
+        for _ in re.findall(_RE_FUNC_PRESENT, condition):  # функция ЕСТЬ
             item = _[6:-1].upper().split('.')
             val = False
             for triplet in self.trpString:
