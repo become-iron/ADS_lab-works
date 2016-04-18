@@ -35,9 +35,9 @@ class Triplet:
     """
     ТРИПЛЕТ
     Принимает:
-        Prefix (str) - префикс (1 латинский символ)
-        Name (str) - имя параметра (латинские символы)
-        Value - значение параметра
+        prefix (str) - префикс (1 латинский символ)
+        name (str) - имя параметра (латинские символы)
+        value - значение параметра
     """
     def __init__(self, prefix, name, value=''):
         if not isinstance(prefix, str):
@@ -178,7 +178,8 @@ class TriplexString:
         """
         УДАЛИТЬ ТРИПЛЕТ ИЗ ТРИПЛЕКСНОЙ СТРОКИ
         Принимает:
-            item (Triplet) - триплет на удаление
+            prefix (str) - префикс (1 латинский символ)
+            name (str) - имя параметра (латинские символы)
         Вызывает исключение ValueError, если триплет не найден
         """
         if not isinstance(prefix, str):
