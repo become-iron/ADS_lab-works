@@ -63,6 +63,8 @@ class Triplet:
         _ = '${}.{}='.format(self.prefix, self.name)
         if isinstance(self.value, str):
             _ += '\'{}\''.format(self.value)
+        elif self.value == _BID:
+            _ += _BID
         else:
             _ += str(self.value)
         _ += ';'
@@ -239,8 +241,7 @@ class TriplexString:
                 if triplet.prefix == item[0] and triplet.name == item[1]:
                     val = True
                     break
-            condition = condition.replace(_,
-                                          'True' if val is True else 'False')
+            condition = condition.replace(_, str(val))
         for _ in re.findall(_RE_FUNC_ABSENCE, condition):  # функция НЕТ
             item = _[5:-1].upper().split('.')
             val = False
@@ -254,11 +255,9 @@ class TriplexString:
         for _ in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов на их значения
             val = self.__getitem__(_[1:])
             if isinstance(val, str):  # е. значение триплета - строка, оборачиваем его в кавычки
-                val = '"' + str(val) + '"'
-            elif val is True:
-                val = 'True'
-            elif val is False:
-                val = 'False'
+                val = '"{}"'.format(str(val))
+            elif isinstance(val, bool):
+                val = str(val)
             else:
                 val = str(val)
             condition = condition.replace(_, val)
