@@ -1,0 +1,1 @@
+$A.B='Caps Lock';$B.T=1200;$H.REM=False;
