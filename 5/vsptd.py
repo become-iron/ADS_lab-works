@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-
 import re
-
 
 _BID = ':'  # заявка (запрос полной информации по заданному объекту, определяемому префиксом)
 
@@ -79,36 +77,36 @@ class TriplexString:
         self.triplets = list(triplets)
 
         # удаление повторов триплетов (по префиксам и именам)
-        trpString_copy = self.triplets.copy()
-        for triplet in trpString_copy:
+        for trp in self.triplets.copy():
             # триплеты с данными префиксами и именами
-            triplets_to_remove = [_ for _ in self.triplets if _.prefix == triplet.prefix and _.name == triplet.name]
+            triplets_to_remove = [_trp for _trp in self.triplets if trp.prefix == _trp.prefix and trp.name == _trp.name]
             triplets_to_remove = triplets_to_remove[:-1]  # исключение последнего найденного триплета
-            for secTriplet in triplets_to_remove:
-                self.triplets.remove(secTriplet)
+            for rem_trp in triplets_to_remove:
+                self.triplets.remove(rem_trp)
 
     def __len__(self):
         return len(self.triplets)
 
     def __add__(self, other):
-        # CHECK
         if isinstance(other, Triplet):
             return TriplexString(*(self.triplets + [other]))
         elif isinstance(other, TriplexString):
             return TriplexString(*(self.triplets + other.triplets))
         else:
-            raise ValueError
+            raise ValueError('Должен быть триплет или триплексная строка')
 
     def __str__(self):
-        return ''.join(tuple(str(triplet) for triplet in self.triplets))
+        return ''.join(tuple(str(trp) for trp in self.triplets))
 
     def __contains__(self, item):
         # TODO возможно, стоит включить возможность проверки включения по префиксу и имени
         if not isinstance(item, Triplet):
             raise ValueError('Должен быть триплет')
 
-        for triplet in self.triplets:
-            if triplet.prefix == item.prefix and triplet.name == item.name and triplet.value == item.value:
+        for trp in self.triplets:
+            if trp.prefix == item.prefix and \
+               trp.name == item.name and \
+               trp.value == item.value:
                 return True
         return False
 
@@ -116,16 +114,16 @@ class TriplexString:
         # TODO CHECK
         if isinstance(key, str):  # элемент по ключу
             if re.match(_RE_PREFIX, key) is not None:  # получить триплеты по префиксу в виде триплесной строки
-                return TriplexString(*[triplet for triplet in self.triplets if triplet.prefix == key])
+                return TriplexString(*[trp for trp in self.triplets if trp.prefix == key])
             elif re.match(_RE_PREFIX_NAME, key) is not None:  # получить значение по префиксу и имени
                 key = key.upper().split('.')
-                for triplet in self.triplets:
-                    if triplet.prefix == key[0] and triplet.name == key[1]:
-                        return triplet.value
+                for trp in self.triplets:
+                    if [trp.prefix, trp.name] == key:
+                        return trp.value
                 return None
             else:
                 raise ValueError('Неверный формат данных')
-        else:  # элемент по срезу
+        else:  # элемент по индексу
             return self.triplets[key]
 
     def __eq__(self, other):
@@ -172,9 +170,9 @@ class TriplexString:
         if re.match(_RE_NAME, name) is None:
             raise ValueError('Неверный формат имени')
 
-        for triplet in self.triplets:
-            if triplet.prefix == prefix and triplet.name == name:
-                self.triplets.remove(triplet)
+        for trp in self.triplets:
+            if trp.prefix == prefix and trp.name == name:
+                self.triplets.remove(trp)
                 return
         raise ValueError('Триплет не найден')
 
@@ -188,6 +186,6 @@ class TriplexString:
         if not isinstance(prefix, str):
             raise ValueError('Должен быть триплет')
 
-        for triplet in self.triplets:
-            if triplet.prefix == prefix:
-                self.triplets.remove(triplet)
+        for trp in self.triplets:
+            if trp.prefix == prefix:
+                self.triplets.remove(trp)
