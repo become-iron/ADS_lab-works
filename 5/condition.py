@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-'''
+"""
+Лабораторная работа №5. Вариант 2. «Реализация функции вычисления условия в правиле вывода»
 Репозиторий: github.com/become-iron/ADS_lab-works/tree/master/5
-'''
-
+"""
 
 import re
 from vsptd import Triplet, TriplexString, _BID, _RE_PREFIX_NAME2
