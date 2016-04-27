@@ -1,0 +1,4 @@
+SIN($Q.PI/2)>COS($Q.PI/3)
+(SIN($Q.X)*SIN($Q.X)+COS($Q.X)*COS($Q.X))>1
+($L.WOB=25 ИЛИ $L.WOB=27) И НЕТ($L.TT)
+$E.KTS='21' И ($O.GRO<>'10000' И $O.GRO<>'10001')

@@ -118,7 +118,7 @@ class TriplexString:
             elif re.match(_RE_PREFIX_NAME, key) is not None:  # получить значение по префиксу и имени
                 key = key.upper().split('.')
                 for trp in self.triplets:
-                    if [trp.prefix, trp.name] == key:
+                    if trp.prefix == key[0] and trp.name == key[1]:
                         return trp.value
                 return None
             else:

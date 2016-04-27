@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+'''
+Репозиторий: github.com/become-iron/ADS_lab-works/tree/master/5
+'''
+
+
 import re
 from vsptd import Triplet, TriplexString, _BID, _RE_PREFIX_NAME2
 
 # импортирование функций для реализации функции check_condition
-from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt
+from math import sin, cos, tan, acos, atan, sinh, cosh, tanh, sqrt, exp
 from math import log as ln
 from math import log10 as log
 
-
-_RE_TRIPLET = re.compile('\$([A-Za-z])\.([A-Za-z]+)=([A-Za-zА-Яа-я0-9 \':]*);')  # триплет
+_RE_TRIPLET = re.compile('\$([A-Za-z])\.([A-Za-z]+)=([A-Za-zА-Яа-я0-9 \':\.]*);')  # триплет
 _RE_FUNC_PRESENT = re.compile('(?:есть|ЕСТЬ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция ЕСТЬ
 _RE_FUNC_ABSENCE = re.compile('(?:нет|НЕТ)\(\$[A-Za-z]\.[A-Za-z]+\)')  # функция НЕТ
 
@@ -26,9 +30,16 @@ def check_condition(trpString, condition):
         condition (str) - условие
     Возвращает:
         (bool) - результат проверки условия
+    Вызывает исключение ValueError, если:
+        триплескная строка или условие не является строкой
+        получена пустая строка вместо триплексной строки или условия
+        триплет из условия не найден в триплексной строке
+        в условии не соблюден баланс скобок
     """
-    if not isinstance(condition, str) or not isinstance(condition, str):
+    if not isinstance(trpString, str) or not isinstance(condition, str):
         raise ValueError('Триплексная строка и условие должны быть строками')
+    if len(trpString) == 0 or len(condition) == 0:
+        raise ValueError('Пустая строка или условие')
 
     # перевод трипл. строки из str в TriplexString
     trpString = re.findall(_RE_TRIPLET, trpString)
@@ -56,16 +67,23 @@ def check_condition(trpString, condition):
     # например, замена слов произойдёт, даже если в условии происходит
     # сравнение со строкой, содержащей слово на замену
     # $W.B = ' или '
-    replacements = [[' или ', ' or '],
-                    [' и ', ' and '],
-                    [' = ', ' == '],
-                    [' <> ', ' != '],
-                    [' ^ ', ' ** ']]
-    for trp in replacements:
-        condition = condition.replace(trp[0], trp[1])
-        condition = condition.replace(trp[0].upper(), trp[1])  # для верхнего регистра
+    replacements = [['или', 'or'],
+                    ['и', 'and'],
+                    ['ИЛИ', 'or'],
+                    ['И', 'and'],
+                    ['=', '=='],
+                    ['<>', '!='],
+                    ['^', '**']]
+    for replacement in replacements:
+        condition = condition.replace(replacement[0], replacement[1])
 
-    # замены для ЕСТЬ и НЕТ
+    # переводим названия функций в нижний регистр
+    func_replacements = ['sin', 'cos', 'tan', 'acos', 'atan', 'sinh', 'cosh', 'tanh',
+                         'sqrt', 'exp', 'ln', 'log', 'strcat', 'min', 'max', 'abs']
+    for replacement in func_replacements:
+        condition = condition.replace(replacement.upper(), replacement)
+
+    # замены для функций ЕСТЬ и НЕТ
     for trp in re.findall(_RE_FUNC_PRESENT, condition):  # функция ЕСТЬ
         item = trp[6:-1].upper().split('.')  # извлекаем префикс и имя в кортеж
         value = False
@@ -84,14 +102,15 @@ def check_condition(trpString, condition):
         condition = condition.replace(trp, str(not value))
 
     for trp in re.findall(_RE_PREFIX_NAME2, condition):  # замена триплетов на их значения
-        value = trpString.__getitem__(trp[1:])
-        if isinstance(value, str):  # е. значение триплета - строка, оборачиваем его в кавычки
-            value = '"{}"'.format(str(value))
-        elif isinstance(value, bool):
-            value = str(value)
-        else:
-            value = str(value)
+        value = trpString.__getitem__(trp[1:])  # получаем значение триплета
+        if value is None:
+            raise ValueError('Триплет {} не найден'.format(trp))
+        value = '\'{}\''.format(value) if isinstance(value, str) else str(value)  # приводим к формату значений триплета
         condition = condition.replace(trp, value)
+
+    # проверка баланса скобок
+    if condition.count('(') != condition.count(')'):
+        raise ValueError('Не соблюден баланс скобок')
 
     # print('Конечное выражение: ', condition, sep='')
     return eval(condition)
