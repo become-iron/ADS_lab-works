@@ -6,8 +6,8 @@ _BID = ':'  # заявка (запрос полной информации по 
 _RE_PREFIX = re.compile('^[A-Za-z]$')  # префикс: 1 латинский символ
 _RE_NAME = re.compile('^[A-Za-z]+$')  # имя: латинские символы
 _RE_VALUE = re.compile('^[A-Za-zА-Яа-я0-9 ]*$')  # значение
-_RE_PREFIX_NAME = re.compile('^[A-Za-z]\.[A-Za-z]+$')  # префикс.имя
-_RE_PREFIX_NAME2 = re.compile('\$[A-Za-z]\.[A-Za-z]+')  # $префикс.имя
+_RE_PREFIX_NAME_WODS = re.compile('[A-Za-z]\.[A-Za-z]+')  # префикс.имя
+_RE_PREFIX_NAME = re.compile('\$[A-Za-z]\.[A-Za-z]+')  # $префикс.имя
 
 
 class Triplet:
@@ -115,7 +115,7 @@ class TriplexString:
         if isinstance(key, str):  # элемент по ключу
             if re.match(_RE_PREFIX, key) is not None:  # получить триплеты по префиксу в виде триплесной строки
                 return TriplexString(*[trp for trp in self.triplets if trp.prefix == key])
-            elif re.match(_RE_PREFIX_NAME, key) is not None:  # получить значение по префиксу и имени
+            elif re.match(_RE_PREFIX_NAME_WODS, key) is not None:  # получить значение по префиксу и имени
                 key = key.upper().split('.')
                 for trp in self.triplets:
                     if trp.prefix == key[0] and trp.name == key[1]:
